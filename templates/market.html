@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #343a40;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        margin-top: 30px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ffffff;
+    }
+
+    th {
+        background-color: #495057;
+    }
+
+    tr:hover {
+        background-color: #4b4f54;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 5px;
+    }
+
+    .btn-info {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #495057;
+        border-radius: 5px;
+        padding: 20px;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 0 10px #000;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 20px;
+    }
+
+    .close {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+        margin-left: 10px;
+    }
+</style>
+
+<div class="container">
+    <h2>Market Items</h2>
+    <div class="row">
+        <!-- Column for Market Items -->
+        <div class="col-md-8">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Barcode</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.barcode }}</td>
+                            <td>${{ item.price }}</td>
+                            <td>
+                                <!-- Button to trigger the More Info modal -->
+                                <button type="button" class="btn btn-info" onclick="showModal('modal-moreInfo-{{ item.id }}')">
+                                    More Info
+                                </button>
+                                <!-- Button to trigger the Purchase modal -->
+                                <button type="button" class="btn btn-primary" onclick="showModal('modal-purchase-{{ item.id }}')">
+                                    Purchase
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- More Information Modal -->
+                        <div class="modal" id="modal-moreInfo-{{ item.id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">More Information about {{ item.name }}</h5>
+                                    <button type="button" class="close" onclick="closeModal('modal-moreInfo-{{ item.id }}')">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>This is some generic information displayed in the modal. Customize this content as needed.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-moreInfo-{{ item.id }}')">Close</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Confirmation Modal -->
+                        <div class="modal" id="modal-purchase-{{ item.id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirm Purchase of {{ item.name }}</h5>
+                                    <button type="button" class="close" onclick="closeModal('modal-purchase-{{ item.id }}')">&times;</button>
+                                </div>
+                                <form method="POST">
+                                    <div class="modal-body">
+                                        {{ purchase_form.hidden_tag() }}
+                                        <p>Are you sure you want to purchase this item?</p>
+                                        <p><strong>Item Name:</strong> <span id="purchase-item-name">{{ item.name }}</span></p>
+                                        <p><strong>Price:</strong> $<span id="purchase-item-price">{{ item.price }}</span></p>
+                                        <input id='purchased_item' name="purchased_item" type="hidden" value="{{ item.name }}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-purchase-{{ item.id }}')">Cancel</button>
+                                        <input type="submit" class="btn btn-primary" value="Confirm Purchase">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Column for Owned Items to Sell -->
+        <div class="col-md-4">
+            <h3>Your Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for owned_item in owned_items %}
+                        <tr>
+                            <td>{{ owned_item.id }}</td>
+                            <td>{{ owned_item.name }}</td>
+                            <td>
+                                <!-- Button to trigger the Sell modal -->
+                                <button type="button" class="btn btn-warning" onclick="showModal('modal-sell-{{ owned_item.id }}')">
+                                    Sell
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Sell Confirmation Modal -->
+                        <div class="modal" id="modal-sell-{{ owned_item.id }}">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirm Sale of {{ owned_item.name }}</h5>
+                                    <button type="button" class="close" onclick="closeModal('modal-sell-{{ owned_item.id }}')">&times;</button>
+                                </div>
+                                <form method="POST">
+                                    <div class="modal-body">
+                                        {{ sell_form.hidden_tag() }}
+                                        <p>Are you sure you want to sell this item?</p>
+                                        <p><strong>Item Name:</strong> <span>{{ owned_item.name }}</span></p>
+                                        <input id='sell_item' name="sell_item" type="hidden" value="{{ owned_item.name }}">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-sell-{{ owned_item.id }}')">Cancel</button>
+                                        <input type="submit" class="btn btn-warning" value="Confirm Sale">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target.id);
+        }
+    };
+</script>
+
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<body style="background-color: #343a40; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+    <style>
+        /* Centered Form Container */
+        .form-container {
+            background-color: #2c2f33;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .form-label {
+            display: block;
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-right:200px;
+            color: #e0e0e0; /* Lighter color for better readability */
+            font-size: 0.9rem; /* Modern, smaller size */
+            text-transform: uppercase; /* Makes labels stand out */
+            letter-spacing: 0.05em; /* Slight spacing for clarity */
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            margin-right:15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: #495057;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+    </style>
+
+    <div class="form-container">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div >
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div >
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+                {% for error in form.password.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div >
+                {{ form.submit(class="btn-primary") }}
+            </div>
+            <div class="mt-4">
+                <p>Don't have an account? <a href="{{ url_for('register_page') }}">Register here</a>.</p>
+            </div>
+        </form>
+    </div>
+</body>
+{% endblock %}
